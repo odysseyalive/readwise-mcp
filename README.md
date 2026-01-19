@@ -2,24 +2,26 @@
 
 A fork of [readwise-mcp-enhanced](https://github.com/arnaldo-delisio/readwise-mcp-enhanced), shaped for how I actually read and research.
 
-## What this is
+## Why this fork exists
 
-This is a Model Context Protocol (MCP) server that lets Claude (or any MCP-compatible tool) access your Readwise Reader library and highlights. The original package by [Arnaldo De Lisio](https://github.com/arnaldo-delisio) already did most of this well—I forked it because I needed it to read uploaded PDFs, which were hitting a 401 auth error.
+I do a lot of reading—academic papers, research PDFs, articles that feed into coursework and cultural preservation projects. Readwise is where I collect and annotate that material, and I wanted Claude to have direct access to it.
 
-## What I changed
+The original MCP by Arnaldo De Lisio does this beautifully, but uploaded PDFs weren't working for me. The API was returning 401 errors when fetching content from files I'd uploaded directly. Turns out the fix was straightforward: Readwise provides temporary S3 links for uploaded content, and the original wasn't requesting them. This fork does.
 
-The main fix: when you ask for full document content, the original used `source_url` which requires browser authentication for uploaded files. The Readwise API actually provides `raw_source_url`—a temporary S3 link that works without auth. This fork requests that URL and uses it for content fetching.
+That's the immediate change. But I'm maintaining this because I want a Readwise integration that fits how I work—research-heavy, PDF-heavy, often pulling content into conversations with Claude as I'm thinking through ideas. If upstream changes break something in that workflow, I'll fix it here. If I need features that don't make sense for the general case, they'll land here too.
 
-**Changes from upstream:**
-- Request `withRawSourceUrl=true` when fetching full content
-- Prioritize S3 presigned URLs for uploaded document content
-- Added `raw_source_url` field to document types
+## What I changed (so far)
+
+When fetching full document content, this fork:
+- Requests `withRawSourceUrl=true` from the Readwise API
+- Uses S3 presigned URLs for uploaded documents (bypasses the auth issue)
+- Falls back gracefully to other methods if S3 isn't available
 
 Everything else works the same as the original.
 
 ## Installation
 
-### From source (what I use)
+### From source
 
 ```bash
 git clone https://github.com/odysseyalive/readwise-mcp.git
@@ -63,17 +65,15 @@ All 13 tools from the original, including:
 
 **Highlights tools:** List and search highlights, daily review for spaced repetition, book management, export for backup.
 
-See the [original README](https://github.com/arnaldo-delisio/readwise-mcp-enhanced#readme) for full documentation—I didn't change the tool interfaces.
+See the [original README](https://github.com/arnaldo-delisio/readwise-mcp-enhanced#readme) for full tool documentation.
 
 ## Credits
 
-This fork exists because of the work others did first:
+This fork builds on work by:
 
-- **[Arnaldo De Lisio](https://github.com/arnaldo-delisio)** built [readwise-mcp-enhanced](https://github.com/arnaldo-delisio/readwise-mcp-enhanced), which unified Reader and Highlights into one MCP with smart content controls and context optimization. That's most of what's here.
+- **[Arnaldo De Lisio](https://github.com/arnaldo-delisio)** — created [readwise-mcp-enhanced](https://github.com/arnaldo-delisio/readwise-mcp-enhanced), which unified Reader and Highlights into one MCP with smart content controls and context optimization. That's the foundation here.
 
-- **[edricgsh](https://github.com/edricgsh)** created [Readwise-Reader-MCP](https://github.com/edricgsh/Readwise-Reader-MCP), the foundation Arnaldo built on.
-
-I just needed my uploaded PDFs to work, so I added S3 URL support. The heavy lifting was already done.
+- **[edricgsh](https://github.com/edricgsh)** — built [Readwise-Reader-MCP](https://github.com/edricgsh/Readwise-Reader-MCP), the project Arnaldo built on.
 
 ## License
 
